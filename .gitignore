@@ -1,0 +1,5 @@
+trainset
+trimmed_*
+*.zip
+.vscode
+**/__pycache__
