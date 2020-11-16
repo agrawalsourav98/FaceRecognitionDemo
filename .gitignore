@@ -1,5 +1,9 @@
-trainset
+**/trainset
 trimmed_*
 *.zip
 .vscode
 **/__pycache__
+**/*.pth
+**/*.pkl
+**/clip
+testset
