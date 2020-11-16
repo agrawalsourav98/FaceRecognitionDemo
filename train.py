@@ -90,7 +90,7 @@ def create_batched_loader(dataset=None,batch_size=16,shuffle=True):
     loader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,shuffle=shuffle)
     return loader
 
-def val_evaluation(dataloader, model, device='cpu'):
+def val_evaluation(dataloader, model,loss_fn, device='cpu',test=False):
     """
     Perform evaluation on the validation dataset
 
@@ -121,8 +121,11 @@ def val_evaluation(dataloader, model, device='cpu'):
         correct += (preds==labels).sum().item()
 
         acc = 100 * correct / total
+        typ = 'Val'
+        if test:
+            typ = 'Test'
         #Write the information about current iteration
-        sys.stdout.write("\rVal: Iteration %i/%i | Loss: %0.3f | Acc: %0.2f" % (i+1,len(dataloader),(total_loss/(i+1)),acc))
+        sys.stdout.write("\r%s: Iteration %i/%i | Loss: %0.3f | Acc: %0.2f" % (typ,i+1,len(dataloader),(total_loss/(i+1)),acc))
         del inputs,labels,outputs
         torch.cuda.empty_cache()
     model.train()
@@ -238,7 +241,7 @@ def train_model(model=None,loss_fn=None,trainloader=None,valloader=None,epochs=1
     loss_epoch_arr = []
     n_iters = np.ceil(len(trainloader))
     #Perform an inital val evaluation
-    val_evaluation(valloader,model,device=device)
+    val_evaluation(valloader,model,loss_fn,device=device)
     training_folder = None
     if chkpt:
         training_folder = 'training'+str(time.time())
@@ -248,7 +251,7 @@ def train_model(model=None,loss_fn=None,trainloader=None,valloader=None,epochs=1
         print('\nEpoch %i/%i\n-------------' % (epoch+1,epochs))
         epoch_loss = train_epoch(model=model,loss_fn=loss_fn,trainloader=trainloader,optimiser=optimiser,scheduler=scheduler,device=device,epoch=epoch,chkpt_dir=training_folder)
         loss_epoch_arr.append(epoch_loss)
-        val_evaluation(valloader,model,device=device)
+        val_evaluation(valloader,model,loss_fn,device=device)
     #Save the weights such that training can be resumed
     torch.save({'weights':model.state_dict(),'optimizer_state_dict':optimiser.state_dict()},'saved_model_to_resume.pth')
     #Save the model for eval

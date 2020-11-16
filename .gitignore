@@ -6,4 +6,4 @@ trimmed_*
 **/*.pth
 **/*.pkl
 **/clip
-testset
+test/
