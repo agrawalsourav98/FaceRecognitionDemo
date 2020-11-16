@@ -133,6 +133,7 @@ def create_dataset_from_folder(folder_name=None,image_size=160,device='cpu'):
         thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
         device=device
     )
+    create_class_mappings(folder_name)
     check_images(folder_name)
     detect_faces_and_save(mtcnn,folder_name)
     del mtcnn

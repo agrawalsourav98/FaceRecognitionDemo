@@ -32,8 +32,8 @@ class LoadDatasetFromFolder():
         assert os.path.exists(self.folder_name), 'folder: {} not found.'.format(self.folder_name)
         print("Loading dataset from folder {0}".format(str(Path(folder_name))))
         self.class_mappings = load_class_mappings(class_list_file)
-        for folder in glob.glob(folder_name+'/*/*'):
-            self.class_list.append(os.path.basename(folder))
+        # for folder in glob.glob(folder_name+'/*/*'):
+        #     self.class_list.append(os.path.basename(folder))
         self.X = []
         self.y = []
         for folder in glob.glob(self.folder_name+'/*/*'):
