@@ -9,13 +9,29 @@ import torch
 from torch.utils import data
 import torchvision.transforms
 from sklearn.model_selection import train_test_split
+import csv
+
+def load_class_mappings(filename='class_list.csv'):
+    assert os.path.exists(filename), 'folder: {} not found.'.format(filename)
+    with open(filename,'r') as f:
+        reader = csv.reader(f)
+        class_list = []
+        for values in reader:
+            if values[0] == 'index':
+                continue
+            class_list.append(values)
+        class_mappings = ['']*len(class_list)
+        for cls in class_list:
+            class_mappings[int(cls[0])] = cls[1]
+        return class_mappings
+            
 
 class LoadDatasetFromFolder():
-    def __init__(self,folder_name=None):
+    def __init__(self,folder_name=None,class_list_file=None):
         self.folder_name = folder_name
         assert os.path.exists(self.folder_name), 'folder: {} not found.'.format(self.folder_name)
         print("Loading dataset from folder {0}".format(str(Path(folder_name))))
-        self.class_list = []
+        self.class_mappings = load_class_mappings(class_list_file)
         for folder in glob.glob(folder_name+'/*/*'):
             self.class_list.append(os.path.basename(folder))
         self.X = []
@@ -43,6 +59,9 @@ class LoadDatasetFromFolder():
 
     def num_classes(self):
         return len(self.class_list)
+
+    def get_class_mappings(self):
+        return self.class_mappings
 
 
 

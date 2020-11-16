@@ -142,7 +142,7 @@ def train_model(model=None,loss_fn=None,trainloader=None,valloader=None,epochs=1
             labels = labels.long()
             outputs = model(inputs)
             batch_loss = loss_fn(outputs,labels)
-            total_loss += batch_loss
+            total_loss += batch_loss.cpu().detach().float()
             _, preds = torch.max(outputs, 1)
             pred_count += len(preds)
 
@@ -152,7 +152,7 @@ def train_model(model=None,loss_fn=None,trainloader=None,valloader=None,epochs=1
             
             acc = (count)/pred_count
             sys.stdout.write("\rVal: Iteration %i/%i | Loss: %0.3f | Acc: %0.2f" % (i+1,len(valloader),(total_loss/(i+1)),acc*100))
-            del inputs,labels,outputs
+            del inputs,labels,outputs,_,preds
             torch.cuda.empty_cache()
     torch.save({'weights':model.state_dict(),'optimizer_state_dict':optimiser.state_dict()},'saved_model_to_resume.pth')
     torch.save(model.state_dict(),'saved_model_final.pth')
@@ -221,7 +221,7 @@ if __name__ == "__main__":
         labels = labels.long()
         outputs = model(inputs)
         batch_loss = loss_fn(outputs,labels)
-        total_loss += batch_loss
+        total_loss += batch_loss.cpu().detach().float()
         _, preds = torch.max(outputs, 1)
         pred_count += len(preds)
         print(preds,labels)
@@ -231,7 +231,7 @@ if __name__ == "__main__":
         
         acc = (count)/pred_count
         sys.stdout.write("\rTest: Iteration %i/%i | Loss: %0.3f | Acc: %0.2f" % (i+1,len(testloader),(total_loss/(i+1)),acc*100))
-        del inputs,labels,outputs,preds
+        del inputs,labels,outputs,preds,_
         torch.cuda.empty_cache()
     
 

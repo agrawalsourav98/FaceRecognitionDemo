@@ -10,10 +10,35 @@ import sys
 import time
 import numpy as np
 import warnings
+import csv
 
 from datetime import timedelta
 
 from mtcnn.mtcnn import MTCNN
+
+warnings.filterwarnings("error")
+
+def create_class_mappings(folder_name=None,path=None):
+    print('\nCreating class mappings and saving...')
+    assert os.path.exists(folder_name), 'folder: {} not found.'.format(folder_name)
+    class_list = []
+    for folder in glob.glob(folder_name+'/*/*'):
+        class_list.append(os.path.basename(folder))
+    fields = ['index','class_name']
+    values = []
+    print('Number of classes:',len(class_list))
+    for i,class_name in enumerate(class_list):
+        values.append([i, class_name])
+    file_path = 'class_list.csv'
+    if path:
+        file_path = str(Path(path))+'/class_list.csv'
+    
+    with open(file_path,'w') as f:
+        writer = csv.writer(f)
+
+        writer.writerow(fields)
+        writer.writerows(values)
+    print('Class mappings created successfully and saved to',file_path)
 
 def check_images(folder_name=None):
     print('\nChecking images\n------------')
@@ -23,10 +48,8 @@ def check_images(folder_name=None):
     for i,jpg in enumerate(files_list):
         sys.stdout.write("\rProcessing image %i of %i files" % (i,len(files_list)))
         try:
-            with warnings.catch_warnings(record=True) as w:
-                warnings.simplefilter("always")
-                img = Image.open(jpg)
-                img.close()
+            img = Image.open(jpg)
+            img.close()
         except:
             #print(jpg)
             count += 1

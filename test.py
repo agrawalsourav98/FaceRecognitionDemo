@@ -18,6 +18,8 @@ if __name__ == "__main__":
     print('Using device',device)
 
     dataset = LoadDatasetFromFolder(parsed_args['folder'][0])
+    class_mappings = dataset.get_class_mappings()
+    class_list = dataset.get_classes_list()
     X,y = dataset.load()
     testdataset = FaceDataset(X,y,transform=True)
     print('Test set is of length',testdataset.__len__())
@@ -43,7 +45,7 @@ if __name__ == "__main__":
         pred_count += len(preds)
         print(preds,labels)
         for pred,label in zip(preds,labels):
-            if pred == label:
+            if class_mappings[pred] == class_list[label]:
                 count +=1
         
         acc = (count)/pred_count
