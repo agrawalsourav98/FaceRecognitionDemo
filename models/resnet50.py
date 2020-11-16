@@ -1,3 +1,7 @@
+"""
+The ResNet-50 model
+"""
+
 from torch import nn
 import math
 
@@ -6,6 +10,7 @@ def conv3x3(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=1, bias=False)
 
+#The resnet basic block
 class BasicBlock(nn.Module):
     expansion = 1
 
@@ -37,6 +42,7 @@ class BasicBlock(nn.Module):
 
         return out
 
+#The resnet bottleneck module
 class BottleNeck(nn.Module):
     expansion = 4
     def __init__(self, inplanes, planes, stride=1, downsample=None):
@@ -72,8 +78,8 @@ class BottleNeck(nn.Module):
 
         return out
 
-#Layers BottleNeck [3,4,6,3]
 
+#The resnet class
 class ResNet(nn.Module):
     def __init__(self, block, layers, num_classes=1000, include_top=True):
         super(ResNet, self).__init__()
@@ -136,6 +142,7 @@ class ResNet(nn.Module):
         x = self.fc(x)
         return x
 
+#Returns the ResNet-50 model
 def resnet50(**kwargs):
     model = ResNet(BottleNeck, [3,4,6,3], **kwargs)
     return model
