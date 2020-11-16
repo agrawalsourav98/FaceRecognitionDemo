@@ -9,6 +9,7 @@ import cv2
 import sys
 import time
 import numpy as np
+import warnings
 
 from datetime import timedelta
 
@@ -22,8 +23,10 @@ def check_images(folder_name=None):
     for i,jpg in enumerate(files_list):
         sys.stdout.write("\rProcessing image %i of %i files" % (i,len(files_list)))
         try:
-            img = Image.open(jpg)
-            img.close()
+            with warnings.catch_warnings(record=True) as w:
+                warnings.simplefilter("always")
+                img = Image.open(jpg)
+                img.close()
         except:
             #print(jpg)
             count += 1
@@ -36,7 +39,7 @@ def detect_faces_and_save(mtcnn,folder_name=None):
     assert os.path.exists(folder_name), 'folder: {} not found.'.format(folder_name)
     folder_name = Path(folder_name)
     print('\nDetecting faces and creating cropped images in trimmed_{0}'.format(folder_name))
-    files_list = glob.glob(str(folder_name)+'/0013/*/*.jpg')
+    files_list = glob.glob(str(folder_name)+'/*/*/*.jpg')
     start = time.time()
     count = 0
     for i,jpg in enumerate(files_list):
