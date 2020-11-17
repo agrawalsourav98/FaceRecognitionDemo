@@ -90,7 +90,9 @@ def detect_faces_and_save(mtcnn,folder_name=None):
     """
     assert os.path.isdir(folder_name), 'folder: {} not found.'.format(folder_name)
     folder_name = Path(folder_name)
-    print('\nDetecting faces and creating cropped images in trimmed_{0}'.format(folder_name))
+    folder_name_parts = list(folder_name.parts)
+    folder_name_parts[-1] = 'trimmed_' + str(folder_name_parts[-1])
+    print('\nDetecting faces and creating cropped images in trimmed_{0}'.format(str(Path(*folder_name_parts))))
     files_list = glob.glob(str(folder_name)+'/*/*/*.jpg')
     start = time.time()
     count = 0
@@ -216,5 +218,5 @@ if __name__ == '__main__':
         zip_path = parsed_args['zip'][0]
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print('Using device',device)
-    folder_name = str(Path(parsed_args['folder'][0]).absolute)
+    folder_name = str(Path(parsed_args['folder'][0]).absolute())
     create_dataset_from_folder(folder_name=folder_name,image_size=parsed_args['s'],device=device,zip_path=zip_path)
