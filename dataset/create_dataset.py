@@ -101,10 +101,15 @@ def detect_faces_and_save(mtcnn,folder_name=None):
             #img = np.array(img)
             try:
                 #Detect faces and save them
-                mtcnn(img,'trimmed_'+str(jpg))
+                jpg_path = Path(jpg).absolute()
+                jpg_path_parts = list(jpg_path.parts)
+                jpg_path_parts[-4] = 'trimmed_' + str(jpg_path_parts[-4])
+                jpg_path = Path(*jpg_path_parts)
+                mtcnn(img,str(jpg_path))
                 count += 1
             #Skip any mtcnn is unable to process
             except Exception as e:
+                print(e)
                 sys.stdout.write("\rSkipping file %s\n" % (str(Path(jpg))))
                 #print(jpg)
                 #print(e)
@@ -211,4 +216,5 @@ if __name__ == '__main__':
         zip_path = parsed_args['zip'][0]
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print('Using device',device)
-    create_dataset_from_folder(folder_name=parsed_args['folder'][0],image_size=parsed_args['s'],device=device,zip_path=zip_path)
+    folder_name = str(Path(parsed_args['folder'][0]).absolute)
+    create_dataset_from_folder(folder_name=folder_name,image_size=parsed_args['s'],device=device,zip_path=zip_path)

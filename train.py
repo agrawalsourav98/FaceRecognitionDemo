@@ -4,6 +4,7 @@ import os
 import copy
 import time
 from datetime import timedelta
+from pathlib import Path
 
 import torch
 import torch.utils
@@ -16,7 +17,7 @@ from models.resnet50 import resnet50
 
 import sys
 
-def load_init_weights(file_name=None,file_type="pth",model=None,optimizer=None,ignore_weights=['fc.bias','fc.weight'],resume=False):
+def load_init_weights(file_name=None,file_type="pth",model=None,optimizer=None,ignore_weights=['fc.bias','fc.weight'],resume=False,test=False):
     """
     Used to load a weights into a model
 
@@ -32,6 +33,10 @@ def load_init_weights(file_name=None,file_type="pth",model=None,optimizer=None,i
         The optimizer to which weights will be loaded
     ignore_weights:
         The weights that won't be loaded from the weight file
+    resume:
+        Flag used to resume training
+    test:
+        Used during test time model init
     """
     if model is None:
         raise ValueError("Model cannot be empty")
@@ -49,8 +54,9 @@ def load_init_weights(file_name=None,file_type="pth",model=None,optimizer=None,i
             weights = pickle.load(f, encoding='latin1')
     else:
         raise ValueError('weight file type must be pkl or pth, given',file_type)
-    
     ignore = ignore_weights
+    if test:
+        ignore = []
     own_state = model.state_dict()
     parameters = model.named_parameters()
     copied_params = []
@@ -118,6 +124,7 @@ def val_evaluation(dataloader, model,loss_fn, device='cpu',test=False):
         #Calculating correct predictions for accuracy
         _, preds = torch.max(outputs.data, 1)
         total += labels.size(0)
+        #print(preds,labels)
         correct += (preds==labels).sum().item()
 
         acc = 100 * correct / total
@@ -283,9 +290,10 @@ if __name__ == "__main__":
     #Use GPU if available
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print('Using device',device)
-    
+    folder_name = str(Path(parsed_args['folder'][0]).absolute())
+    class_list_file = str(Path(parsed_args['class_list_file'][0]).absolute())
     #Load the dataset from the specified folder
-    loaded_dataset = LoadDatasetFromFolder(parsed_args['folder'][0],parsed_args['class_list_file'][0])
+    loaded_dataset = LoadDatasetFromFolder(folder_name,class_list_file)
     X,y = loaded_dataset.load()
     #Create the train-val split
     val_size = 0.12
@@ -315,7 +323,8 @@ if __name__ == "__main__":
             resume = True
     # Try weight loading, if weight file provided.
     try:
-        model = load_init_weights(parsed_args['weight_file'][0],parsed_args['weight_type'][0],model,optimizer=opt,resume=resume,ignore_weights=parsed_args['ignore_weights'])
+        weight_file = str(Path(parsed_args['weight_file'][0]).absolute())
+        model = load_init_weights(weight_file,parsed_args['weight_type'][0],model,optimizer=opt,resume=resume,ignore_weights=parsed_args['ignore_weights'])
         print("Weights loaded successfully")
     except Exception as e:
         print(e)

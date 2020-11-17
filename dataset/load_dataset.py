@@ -23,6 +23,7 @@ def load_class_mappings(filename='class_list.csv'):
         path where to save the zip file
     """
     assert os.path.exists(filename), 'filename: {} not found.'.format(filename)
+    filename = str(Path(filename))
     with open(filename,'r') as f:
         reader = csv.reader(f)
         class_list = []
