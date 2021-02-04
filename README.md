@@ -2,7 +2,7 @@
 
 By - [Sourav Agrawal](https://github.com/agrawalsourav98)
 
-## Part A
+This application classifes a face into a given set of classes. This classes are specified during training time and the model then builds a class dictionary to be used later. The application has already been trained on a sample dataset of ~ 1000 classes.
 
 Basic Procedure for training:
 
